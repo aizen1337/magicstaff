@@ -16,10 +16,12 @@ datasource db {
 model Profiles {
   id             String       @id @default(uuid())
   email          String    @unique
-  name           String
-  contactInfo    String?
+  firstName      String?    
+  lastName       String?
+  user_metadata     Json   
+  app_metadata      Json
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  updatedAt      DateTime  @updatedAt @default(now())
   @@schema("public")
   OrganizationMembers OrganizationMembers[] @relation("OrganizationMember")
 }
@@ -35,7 +37,7 @@ model OrganizationMembers {
   timeTracking   TimeTrackings[]
   role           Roles      // Enum to define role (e.g., "EMPLOYEE" or "MANAGER")
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime   @updatedAt @default(now())
   Messages Messages[] @relation("MessageSender")
   Organizations Organizations[]
   @@schema("public")
@@ -47,7 +49,7 @@ model Organizations {
   id             String       @id @default(uuid())
   members OrganizationMembers[]
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime   @updatedAt @default(now())
   @@schema("public")
 }
 model Shifts {
@@ -60,7 +62,7 @@ model Shifts {
   createdById String
   location    String?
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  updatedAt   DateTime   @updatedAt @default(now())
   OrganizationMembers OrganizationMembers[]
   @@schema("public")
   TimeTrackings TimeTrackings[]
@@ -75,7 +77,7 @@ model Availability {
   startTime DateTime
   endTime   DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
   @@schema("public")
 }
 
@@ -87,7 +89,7 @@ model ShiftSwapRequests {
   shiftId      String
   status       SwapStatuses // Enum to represent "PENDING", "APPROVED", "DECLINED"
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  updatedAt    DateTime  @updatedAt @default(now())
   OrganizationMembers OrganizationMembers[]
   @@schema("public")
 }
@@ -101,7 +103,7 @@ model TimeTrackings {
   clockIn   DateTime?
   clockOut  DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @updatedAt @default(now())
   @@schema("public")
 }
 
@@ -111,6 +113,7 @@ model Messages {
   senderId   String
   content    String
   createdAt  DateTime @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
   OrganizationMembers OrganizationMembers[]
   @@schema("public")
 }
