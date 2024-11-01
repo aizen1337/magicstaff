@@ -12,6 +12,15 @@ datasource db {
   schemas  = ["public"]
 }
 
+model UsersDuringOnboarding {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  user           Profiles  @relation("OrganizationMember", fields: [userId], references: [id])
+  userId         String
+  stripeToken String
+  stripeCustomerId String
+  @@schema("public")
+}
 
 model Profiles {
   id             String       @id @default(uuid())
@@ -24,6 +33,7 @@ model Profiles {
   updatedAt      DateTime  @updatedAt @default(now())
   @@schema("public")
   OrganizationMembers OrganizationMembers[] @relation("OrganizationMember")
+  UsersDuringOnboarding UsersDuringOnboarding[] @relation("OrganizationMember")
 }
 
 model OrganizationMembers {
@@ -48,6 +58,7 @@ model OrganizationMembers {
 model Organizations {
   id             String       @id @default(uuid())
   members OrganizationMembers[]
+  settings OrganizationSettings[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt @default(now())
   @@schema("public")
@@ -73,7 +84,6 @@ model Availability {
   id             String       @id @default(uuid())
   member    OrganizationMembers     @relation(fields: [memberId], references: [id])
   memberId   String
-  day       WeekDays  // Enum to represent days of the week
   startTime DateTime
   endTime   DateTime
   createdAt DateTime @default(now())
@@ -117,7 +127,13 @@ model Messages {
   OrganizationMembers OrganizationMembers[]
   @@schema("public")
 }
-
+model OrganizationSettings {
+  id             String       @id @default(uuid())
+  organization  Organizations @relation(fields: [organizationId], references: [id])
+  organizationId String 
+  metadata Json
+  @@schema("public")
+}
 enum Roles {
   EMPLOYEE
   MANAGER
