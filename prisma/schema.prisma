@@ -1,0 +1,148 @@
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  schemas  = ["public"]
+}
+
+model Profiles {
+  id             String       @id @default(uuid())
+  email          String    @unique
+  clerkId        String 
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt @default(now())
+  availableOrganizationsToCreate Int @default(0)
+  stripeCustomerId String
+  @@schema("public")
+  OrganizationMembers OrganizationMembers[] @relation("OrganizationMember")
+}
+
+model OrganizationMembers {
+  id             String       @id @default(uuid())
+  user           Profiles  @relation("OrganizationMember", fields: [userId], references: [id])
+  userId         String
+  availability   Availability[]
+  shifts         Shifts[]
+  messages       Messages[]
+  shiftSwapRequests ShiftSwapRequests[]
+  timeTracking   TimeTrackings[]
+  role           Roles      // Enum to define role (e.g., "EMPLOYEE" or "MANAGER")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt @default(now())
+  Messages Messages[] @relation("MessageSender")
+  Organizations Organizations[]
+  @@schema("public")
+  ShiftsEmployess Shifts[] @relation("ShiftEmployees")
+  ShiftsCreators Shifts[] @relation("ShiftCreator")
+  ShiftSwapRequests ShiftSwapRequests[] @relation("ShiftSwapRequester")
+}
+model Organizations {
+  id             String       @id @default(uuid())
+  members OrganizationMembers[]
+  settings OrganizationSettings[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt @default(now())
+  availableMembersToInvite Int @default(5)
+  @@schema("public")
+}
+model Shifts {
+  id             String       @id @default(uuid())
+  title       String
+  startTime   DateTime
+  endTime     DateTime
+  employees   OrganizationMembers[]     @relation("ShiftEmployees")
+  createdBy   OrganizationMembers       @relation("ShiftCreator", fields: [createdById], references: [id])
+  createdById String
+  location    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt @default(now())
+  OrganizationMembers OrganizationMembers[]
+  @@schema("public")
+  TimeTrackings TimeTrackings[]
+  ShiftSwapRequests ShiftSwapRequests[]
+}
+
+model Availability {
+  id             String       @id @default(uuid())
+  member    OrganizationMembers     @relation(fields: [memberId], references: [id])
+  memberId   String
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  @@schema("public")
+}
+
+model ShiftSwapRequests {
+  id             String       @id @default(uuid())
+  requestedBy   OrganizationMembers @relation("ShiftSwapRequester", fields: [requestedById], references: [id])
+  requestedById String
+  shift        Shifts     @relation(fields: [shiftId], references: [id])
+  shiftId      String
+  status       SwapStatuses // Enum to represent "PENDING", "APPROVED", "DECLINED"
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt @default(now())
+  OrganizationMembers OrganizationMembers[]
+  @@schema("public")
+}
+
+model TimeTrackings {
+  id             String       @id @default(uuid())
+  member    OrganizationMembers      @relation(fields: [memberId], references: [id])
+  memberId    String
+  shift     Shifts     @relation(fields: [shiftId], references: [id])
+  shiftId   String
+  clockIn   DateTime?
+  clockOut  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+  @@schema("public")
+}
+
+model Messages {
+  id             String       @id @default(uuid())
+  sender     OrganizationMembers @relation("MessageSender", fields: [senderId], references: [id])
+  senderId   String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt DateTime  @updatedAt @default(now())
+  OrganizationMembers OrganizationMembers[]
+  @@schema("public")
+}
+model OrganizationSettings {
+  id             String       @id @default(uuid())
+  organization  Organizations @relation(fields: [organizationId], references: [id])
+  organizationId String 
+  metadata Json
+  @@schema("public")
+}
+enum Roles {
+  EMPLOYEE
+  MANAGER
+  OWNER
+  @@schema("public")
+}
+
+enum SwapStatuses {
+  PENDING
+  APPROVED
+  DECLINED
+  @@schema("public")
+}
+
+enum WeekDays {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+  @@schema("public")
+}
