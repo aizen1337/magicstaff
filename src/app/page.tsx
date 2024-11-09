@@ -184,12 +184,12 @@ export default async function LandingPage() {
         {feature.name}
         
         {feature.commingSoon && (
-          <span className="ml-2 inline-flex items-center rounded-full bg-yellow-500 px-3 py-0.5 text-xs font-semibold text-white animate-pulse">
+          <span className="ml-2 inline-flex items-center rounded-full bg-yellow-500 px-3 py-0.5 text-xs font-semibold text-white">
             Coming Soon
           </span>
         )}
         {feature.includedInStarter && (
-          <span className="ml-2 inline-flex items-center rounded-full bg-purple-900 px-3 py-0.5 text-xs font-semibold text-white animate-pulse">
+          <span className="ml-2 inline-flex items-center rounded-full bg-purple-900 px-3 py-0.5 text-xs font-semibold text-white">
             Included in starter
           </span>
         )}
